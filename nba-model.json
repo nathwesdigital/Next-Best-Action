@@ -1,6 +1,6 @@
 [
     {
-        "external_user_id": "ca5ab425ddc500909dd54cf247c6645a06ffd17f30e84b75c4cb1bf2d54ac3f6-1",
+        "external_user_id": "6708222988ff543b3aa3683c100a944e12101c0efdf88d66ef6688fd49f968a1-1",
         "next_best_action": "Link Flybuys",
         "priority": "1",
         "conversion_event": "flybuys_linked",
@@ -8,9 +8,9 @@
         "end_date": "2025-04-18"        
     },
     {
-        "external_user_id": "9705c2f37eff240b1078d0ab65792f6461332c20e7ce5d9da65f697e4fc3dbf8",
+        "external_user_id": "6708222988ff543b3aa3683c100a944e12101c0efdf88d66ef6688fd49f968a1",
         "next_best_action": "Link Bunnings",
-        "priority": "1",
+        "priority": "2",
         "conversion_event": "bunnings_division_linked",
         "timing": "immediate",
         "end_date": "2025-04-18"
