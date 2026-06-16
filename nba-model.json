@@ -1,6 +1,6 @@
 [
     {
-        "external_user_id": "6708222988ff543b3aa3683c100a944e12101c0efdf88d66ef6688fd49f968a1-1",
+        "external_user_id": "6708222988ff543b3aa3683c100a944e12101c0efdf88d66ef6688fd49f968a1",
         "next_best_action": "Link Flybuys",
         "priority": "1",
         "conversion_event": "flybuys_linked",
