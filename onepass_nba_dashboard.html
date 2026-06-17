@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OnePass Next Best Action Dashboard</title>
+  <style>
+    :root {
+      --green-900:#073f33;
+      --green-800:#0b5543;
+      --green-700:#008540;
+      --green-600:#2f9d62;
+      --green-100:#e8f3eb;
+      --green-050:#f4faf6;
+      --ink:#202524;
+      --body:#3f4845;
+      --muted:#697470;
+      --line:#dbe3df;
+      --paper:#fff;
+      --field:#f2f5f2;
+      --blue-700:#095d7d;
+      --blue-100:#e4f1f6;
+      --gold-700:#9a7a18;
+      --gold-100:#f7efd2;
+      --red-700:#9b3131;
+      --red-100:#f8dfdf;
+      --shadow:0 18px 60px rgba(11,40,34,.12);
+    }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      margin:0;
+      color:var(--ink);
+      background:
+        linear-gradient(90deg,rgba(0,133,64,.08) 1px,transparent 1px),
+        linear-gradient(0deg,rgba(0,133,64,.07) 1px,transparent 1px),
+        var(--field);
+      background-size:44px 44px;
+      font-family:"Aptos","Segoe UI",sans-serif;
+      line-height:1.42;
+    }
+    .shell { width:min(1440px,calc(100vw - 36px)); margin:0 auto; }
+    header {
+      color:#fff;
+      background:linear-gradient(135deg,rgba(0,175,104,.22),transparent 48%),var(--green-900);
+      border-bottom:6px solid var(--green-700);
+      box-shadow:var(--shadow);
+    }
+    .hero {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 380px;
+      gap:28px;
+      align-items:end;
+      padding:34px 0 26px;
+    }
+    .eyebrow {
+      color:#bfe6ce;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+      margin:0 0 10px;
+    }
+    h1 {
+      max-width:980px;
+      margin:0;
+      font-size:clamp(34px,5vw,68px);
+      line-height:.96;
+      letter-spacing:0;
+    }
+    .subtitle {
+      max-width:920px;
+      margin:16px 0 0;
+      color:#dcece2;
+      font-size:clamp(15px,1.5vw,19px);
+    }
+    .status-panel {
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:8px;
+      background:rgba(255,255,255,.08);
+      padding:16px;
+    }
+    .status-panel strong {
+      display:block;
+      margin-bottom:4px;
+      font-size:13px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#d7f1df;
+    }
+    .status-panel p { margin:0; color:#f2fff6; font-size:14px; }
+    .nav,.control-row { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .nav { padding:0 0 22px; }
+    .nav a,button {
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:var(--paper);
+      color:var(--ink);
+      cursor:pointer;
+      font:inherit;
+      font-weight:750;
+      padding:9px 13px;
+      text-decoration:none;
+      transition:transform 150ms ease,border-color 150ms ease,background 150ms ease;
+    }
+    .nav a {
+      color:#fff;
+      border-color:rgba(255,255,255,.22);
+      background:rgba(255,255,255,.09);
+    }
+    .nav a:hover,button:hover { transform:translateY(-1px); border-color:var(--green-600); }
+    button.is-active { color:#fff; background:var(--green-900); border-color:var(--green-900); }
+    main { padding:24px 0 56px; }
+    section { margin:0 0 22px; }
+    .section-head { display:flex; justify-content:space-between; gap:16px; align-items:end; margin:0 0 12px; }
+    h2 { margin:0; font-size:22px; line-height:1.12; letter-spacing:0; }
+    h3 { margin:0; font-size:17px; line-height:1.16; }
+    .section-head p,.note { max-width:850px; margin:7px 0 0; color:var(--muted); font-size:14px; }
+    .metrics-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .metric {
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:var(--paper);
+      padding:16px;
+      min-height:136px;
+      box-shadow:0 8px 28px rgba(19,42,36,.08);
+    }
+    .metric .label {
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .metric .value {
+      margin:10px 0 6px;
+      font-size:clamp(28px,3vw,43px);
+      line-height:1;
+      font-weight:900;
+      color:var(--green-900);
+    }
+    .metric p { margin:0; color:var(--body); font-size:13px; }
+    .metric.accent { color:#fff; background:linear-gradient(135deg,rgba(255,255,255,.16),transparent 55%),var(--green-900); border-color:var(--green-900); }
+    .metric.accent .label,.metric.accent p { color:#dcece2; }
+    .metric.accent .value { color:#fff; }
+    .decision-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .decision {
+      min-height:188px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:var(--paper);
+      box-shadow:0 8px 28px rgba(19,42,36,.08);
+      padding:18px;
+    }
+    .decision.main { color:#fff; background:linear-gradient(135deg,rgba(255,255,255,.16),transparent 55%),var(--green-900); border-color:var(--green-900); }
+    .decision .day {
+      display:inline-flex;
+      min-width:76px;
+      min-height:76px;
+      align-items:center;
+      justify-content:center;
+      border-radius:50%;
+      color:var(--green-900);
+      background:var(--green-100);
+      font-size:26px;
+      font-weight:900;
+      margin-bottom:14px;
+      text-align:center;
+      line-height:1;
+    }
+    .decision.main .day { background:#fff; }
+    .decision p { margin:8px 0 0; color:var(--body); font-size:14px; }
+    .decision.main p { color:#dcece2; }
+    .panel {
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:rgba(255,255,255,.96);
+      box-shadow:0 8px 28px rgba(19,42,36,.08);
+      padding:18px;
+      overflow:hidden;
+    }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; align-items:start; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; align-items:start; }
+    .pathway-table-grid { display:grid; grid-template-columns:1fr; gap:14px; margin-top:14px; }
+    .mini-kpis { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:13px; }
+    .mini-kpi {
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:var(--green-050);
+      padding:12px;
+      min-height:96px;
+    }
+    .mini-kpi strong { display:block; color:var(--green-900); font-size:24px; line-height:1; }
+    .mini-kpi span { display:block; margin-top:6px; color:var(--body); font-size:12px; }
+    .timeline-list { display:grid; gap:10px; margin-top:12px; }
+    .time-row {
+      display:grid;
+      grid-template-columns:175px 1fr 120px;
+      gap:12px;
+      align-items:center;
+      padding:10px 0;
+      border-top:1px solid var(--line);
+    }
+    .time-row:first-child { border-top:0; }
+    .time-label strong { display:block; font-size:14px; }
+    .time-label span { color:var(--muted); font-size:12px; }
+    .track { height:10px; border-radius:999px; background:#e7ede9; overflow:hidden; }
+    .fill { height:100%; width:var(--w); border-radius:inherit; background:var(--green-600); }
+    .time-value { text-align:right; font-weight:900; color:var(--green-900); font-variant-numeric:tabular-nums; }
+    .funnel { display:grid; gap:10px; margin-top:10px; }
+    .funnel-row {
+      display:grid;
+      grid-template-columns:92px 1fr 112px;
+      gap:10px;
+      align-items:center;
+      border:1px solid #e0e8e4;
+      border-radius:8px;
+      background:#fbfdfb;
+      padding:9px 10px;
+    }
+    .funnel-row strong { color:var(--green-900); }
+    .funnel-row span { color:var(--muted); font-size:12px; }
+    .pill-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .pill {
+      border:1px solid #cfe3d6;
+      border-radius:999px;
+      background:var(--green-050);
+      color:var(--green-900);
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:850;
+    }
+    .objective-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+    .objective {
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:var(--paper);
+      padding:16px;
+      min-height:154px;
+    }
+    .objective .tag {
+      display:inline-flex;
+      border-radius:999px;
+      padding:4px 8px;
+      margin-bottom:10px;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    .tag.green { color:#fff; background:var(--green-900); }
+    .tag.blue { color:var(--blue-700); background:var(--blue-100); }
+    .tag.gold { color:var(--gold-700); background:var(--gold-100); }
+    .tag.red { color:var(--red-700); background:var(--red-100); }
+    .objective p { margin:8px 0 0; color:var(--body); font-size:13px; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--paper); box-shadow:0 8px 28px rgba(19,42,36,.08); }
+    table { width:100%; border-collapse:collapse; min-width:860px; font-size:13px; }
+    th,td { padding:10px 12px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { position:sticky; top:0; z-index:1; color:var(--green-900); background:var(--green-100); font-size:11px; letter-spacing:.07em; text-transform:uppercase; white-space:nowrap; }
+    tr:last-child td { border-bottom:0; }
+    td.numeric { font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .path { font-weight:800; color:var(--green-900); }
+    .compact-table table { min-width:0; font-size:12px; }
+    .compact-table th,.compact-table td { padding:8px 9px; }
+    .compact-table th:nth-child(2),.compact-table td:nth-child(2) { min-width:150px; }
+    .source-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .source {
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:var(--paper);
+      padding:14px;
+    }
+    .source strong { display:block; margin-bottom:6px; color:var(--green-900); }
+    .source p { margin:0; color:var(--body); font-size:13px; }
+    footer { color:var(--muted); font-size:12px; padding:8px 0 26px; }
+    @media (max-width:1180px) {
+      .hero,.grid-2,.source-grid { grid-template-columns:1fr; }
+      .metrics-grid,.decision-strip,.grid-3,.objective-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:760px) {
+      .shell { width:min(100% - 24px,1440px); }
+      .metrics-grid,.decision-strip,.grid-3,.objective-grid,.mini-kpis { grid-template-columns:1fr; }
+      .section-head { display:block; }
+      .time-row,.funnel-row { grid-template-columns:1fr; gap:7px; }
+      .time-value { text-align:left; }
+      table { min-width:760px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">OnePass next best action brief</p>
+          <h1>Move fast on Flybuys, app and the next linked division.</h1>
+          <p class="subtitle">PowerPoint-only dashboard using the latest Next Best Action deck. It focuses on the customer actions that happen quickly after trial or paid start, and the division-linking paths associated with stronger spend and transaction outcomes.</p>
+        </div>
+        <aside class="status-panel" aria-label="Source status">
+          <strong>Evidence status</strong>
+          <p>Source is Next Best Action.pptx only. No prior local data extracts or workbook calculations are embedded in this version.</p>
+        </aside>
+      </div>
+      <nav class="nav" aria-label="Dashboard sections">
+        <a href="#headline">Headline metrics</a>
+        <a href="#activation">Activation timing</a>
+        <a href="#division-linking">Division linking</a>
+        <a href="#pathways">Best paths</a>
+        <a href="#source">Source notes</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="headline" aria-labelledby="headline-title">
+      <div class="section-head">
+        <div>
+          <h2 id="headline-title">Headline Metrics</h2>
+          <p>Key counts and rates from the deck, anchored to the stated date rules for each behaviour.</p>
+        </div>
+      </div>
+      <div class="metrics-grid">
+        <article class="metric accent"><div class="label">Flybuys linked after join</div><div class="value">568,155</div><p>72% within 24 hours and 86% within 30 days, using whichever came first: trial or paid.</p></article>
+        <article class="metric"><div class="label">App installed after join</div><div class="value">244,355</div><p>66% within 24 hours and 87% within 30 days, using whichever came first: trial or paid.</p></article>
+        <article class="metric"><div class="label">Push opted in</div><div class="value">27%</div><p>Among overall app installs from the deck. 73% had installed the app but had no push opt-in.</p></article>
+        <article class="metric"><div class="label">Division linked after start</div><div class="value">901,175</div><p>Members linked at least one division on or after first trial or paid start.</p></article>
+      </div>
+    </section>
+
+    <section id="decision-map" aria-labelledby="decision-title">
+      <div class="section-head">
+        <div>
+          <h2 id="decision-title">Decision Map</h2>
+          <p>The deck points to rapid early activation: Flybuys, app install and first division link are heavily front-loaded. The next best action should then shift to the next linked division.</p>
+        </div>
+      </div>
+      <div class="decision-strip">
+        <article class="decision main"><div class="day">0</div><h3>Start with the required links</h3><p>Flybuys and app install both show strong same-day behaviour. Make these the first onboarding checks after trial or paid start.</p></article>
+        <article class="decision"><div class="day">24h</div><h3>Close the fastest gaps</h3><p>Within 24 hours, 72% of Flybuys linkers and 66% of app installers have already acted after join.</p></article>
+        <article class="decision"><div class="day">2d</div><h3>Ask for the second division</h3><p>The median second linked division happens around day 2 after trial or paid start.</p></article>
+        <article class="decision"><div class="day">4-9d</div><h3>Build breadth</h3><p>Third, fourth, fifth and sixth division links cluster around days 3.9, 5.9, 9.1 and 9.2.</p></article>
+      </div>
+    </section>
+
+    <section id="activation" aria-labelledby="activation-title">
+      <div class="section-head">
+        <div>
+          <h2 id="activation-title">Activation Timing</h2>
+          <p>Only timing and counts shown in the PowerPoint are used here.</p>
+        </div>
+      </div>
+      <div class="grid-3">
+        <article class="panel">
+          <h3>Flybuys Linking</h3>
+          <p class="note">Dated from 2024-06-10. Trial users: 620,457. Paid users: 856,230.</p>
+          <div class="mini-kpis">
+            <div class="mini-kpi"><strong>273,083</strong><span>Linked on or after first trial start</span></div>
+            <div class="mini-kpi"><strong>325,943</strong><span>Linked on or after first paid start</span></div>
+            <div class="mini-kpi"><strong>3.7h</strong><span>Median time after trial start</span></div>
+          </div>
+          <div class="timeline-list">
+            <div class="time-row"><div class="time-label"><strong>Total after any join</strong><span>within 24 hours</span></div><div class="track"><div class="fill" style="--w:72%"></div></div><div class="time-value">72%</div></div>
+            <div class="time-row"><div class="time-label"><strong>Total after any join</strong><span>within 30 days</span></div><div class="track"><div class="fill" style="--w:86%"></div></div><div class="time-value">86%</div></div>
+            <div class="time-row"><div class="time-label"><strong>After paid start</strong><span>median time</span></div><div class="track"><div class="fill" style="--w:64%"></div></div><div class="time-value">1.17 days</div></div>
+          </div>
+        </article>
+        <article class="panel">
+          <h3>App Installations</h3>
+          <p class="note">Dated from 2025-04-18. App installs: 383,992. iOS: 70%. Android: 30%.</p>
+          <div class="mini-kpis">
+            <div class="mini-kpi"><strong>123,682</strong><span>Installed on or after first trial start</span></div>
+            <div class="mini-kpi"><strong>133,018</strong><span>Installed on or after first paid start</span></div>
+            <div class="mini-kpi"><strong>30m</strong><span>Median time after trial start</span></div>
+          </div>
+          <div class="timeline-list">
+            <div class="time-row"><div class="time-label"><strong>Total after any join</strong><span>within 24 hours</span></div><div class="track"><div class="fill" style="--w:66%"></div></div><div class="time-value">66%</div></div>
+            <div class="time-row"><div class="time-label"><strong>Total after any join</strong><span>within 30 days</span></div><div class="track"><div class="fill" style="--w:87%"></div></div><div class="time-value">87%</div></div>
+            <div class="time-row"><div class="time-label"><strong>After paid start</strong><span>median time</span></div><div class="track"><div class="fill" style="--w:54%"></div></div><div class="time-value">1 hour</div></div>
+          </div>
+        </article>
+        <article class="panel">
+          <h3>Push Opt-In After App Install</h3>
+          <p class="note">Dated from 2025-04-18. Overall app installs in this readout: 775,716.</p>
+          <div class="mini-kpis">
+            <div class="mini-kpi"><strong>27%</strong><span>Push opted-in users</span></div>
+            <div class="mini-kpi"><strong>73%</strong><span>Installed app but no push opt-in</span></div>
+            <div class="mini-kpi"><strong>2.6s</strong><span>Median time after app install</span></div>
+          </div>
+          <div class="timeline-list">
+            <div class="time-row"><div class="time-label"><strong>Within 1 hour</strong><span>after app install</span></div><div class="track"><div class="fill" style="--w:12.72%"></div></div><div class="time-value">12.72%</div></div>
+            <div class="time-row"><div class="time-label"><strong>Within 24 hours</strong><span>after app install</span></div><div class="track"><div class="fill" style="--w:13.07%"></div></div><div class="time-value">13.07%</div></div>
+            <div class="time-row"><div class="time-label"><strong>Within 30 days</strong><span>after app install</span></div><div class="track"><div class="fill" style="--w:13.73%"></div></div><div class="time-value">13.73%</div></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="division-linking" aria-labelledby="division-title">
+      <div class="section-head">
+        <div>
+          <h2 id="division-title">Division Linking</h2>
+          <p>Linking data is treated as its own event stream, not purchase behaviour. The timing and orders below come directly from the deck.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <article class="panel">
+          <h3>How Far People Get</h3>
+          <div class="funnel">
+            <div class="funnel-row"><strong>1 only</strong><div class="track"><div class="fill" style="--w:100%"></div></div><span>508,834 | 41.0%</span></div>
+            <div class="funnel-row"><strong>2</strong><div class="track"><div class="fill" style="--w:45.3%"></div></div><span>230,561 | 18.6%</span></div>
+            <div class="funnel-row"><strong>3</strong><div class="track"><div class="fill" style="--w:31.0%"></div></div><span>157,825 | 12.7%</span></div>
+            <div class="funnel-row"><strong>4</strong><div class="track"><div class="fill" style="--w:35.0%"></div></div><span>178,164 | 14.4%</span></div>
+            <div class="funnel-row"><strong>5</strong><div class="track"><div class="fill" style="--w:21.8%"></div></div><span>110,865 | 8.9%</span></div>
+            <div class="funnel-row"><strong>6</strong><div class="track"><div class="fill" style="--w:10.8%"></div></div><span>54,883 | 4.4%</span></div>
+          </div>
+        </article>
+        <article class="panel">
+          <h3>When To Ask For The Next Link</h3>
+          <p class="note">Median timing after first trial or paid start.</p>
+          <div class="timeline-list">
+            <div class="time-row"><div class="time-label"><strong>1st linked division</strong><span>immediate onboarding prompt</span></div><div class="track"><div class="fill" style="--w:2%"></div></div><div class="time-value">0.0 days</div></div>
+            <div class="time-row"><div class="time-label"><strong>2nd linked division</strong><span>first breadth prompt</span></div><div class="track"><div class="fill" style="--w:22%"></div></div><div class="time-value">2.0 days</div></div>
+            <div class="time-row"><div class="time-label"><strong>3rd linked division</strong><span>follow-up breadth prompt</span></div><div class="track"><div class="fill" style="--w:42%"></div></div><div class="time-value">3.9 days</div></div>
+            <div class="time-row"><div class="time-label"><strong>4th linked division</strong><span>objective-based prompt</span></div><div class="track"><div class="fill" style="--w:64%"></div></div><div class="time-value">5.9 days</div></div>
+            <div class="time-row"><div class="time-label"><strong>5th linked division</strong><span>late breadth prompt</span></div><div class="track"><div class="fill" style="--w:99%"></div></div><div class="time-value">9.1 days</div></div>
+            <div class="time-row"><div class="time-label"><strong>6th linked division</strong><span>completion prompt</span></div><div class="track"><div class="fill" style="--w:100%"></div></div><div class="time-value">9.2 days</div></div>
+          </div>
+        </article>
+      </div>
+      <div class="panel" style="margin-top:14px;">
+        <div class="section-head">
+          <div>
+            <h3>Most Common Linking Order</h3>
+            <p class="note">The deck provides rank order by step, not percentages for each brand at each step.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Step</th><th>Top divisions by share of users reaching that step</th></tr></thead>
+            <tbody>
+              <tr><td class="numeric">1st</td><td class="path">Kmart &gt; Bunnings &gt; Target &gt; Officeworks &gt; Priceline &gt; InstantScripts</td></tr>
+              <tr><td class="numeric">2nd</td><td class="path">Kmart &gt; Target &gt; Bunnings &gt; Officeworks &gt; Priceline &gt; InstantScripts</td></tr>
+              <tr><td class="numeric">3rd</td><td class="path">Officeworks &gt; Target &gt; Bunnings &gt; Kmart &gt; Priceline &gt; InstantScripts</td></tr>
+              <tr><td class="numeric">4th</td><td class="path">Target &gt; Officeworks &gt; Bunnings &gt; Priceline &gt; InstantScripts &gt; Kmart</td></tr>
+              <tr><td class="numeric">5th</td><td class="path">Priceline &gt; Target &gt; Officeworks &gt; InstantScripts &gt; Bunnings &gt; Kmart</td></tr>
+              <tr><td class="numeric">6th</td><td class="path">Priceline &gt; InstantScripts &gt; Target &gt; Officeworks &gt; Bunnings &gt; Kmart</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="pathways" aria-labelledby="path-title">
+      <div class="section-head">
+        <div>
+          <h2 id="path-title">Strongest Linking Paths</h2>
+          <p>The deck gives one core spend-weighted sequence and three objective-specific reads. It also notes the full six-division total-spend path still has unresolved fourth and fifth actions.</p>
+        </div>
+      </div>
+      <div class="objective-grid">
+        <article class="objective"><span class="tag green">Core path</span><h3>Kmart &gt; Target &gt; Bunnings &gt; Officeworks &gt; Priceline</h3><p>Strongest spend-weighted linking pathway from the PowerPoint.</p></article>
+        <article class="objective"><span class="tag blue">Transaction volume</span><h3>Choose Officeworks as the 4th action</h3><p>Use when the objective is broader transaction volume after Kmart, Target and Bunnings.</p></article>
+        <article class="objective"><span class="tag gold">Spend or repeat</span><h3>Choose Priceline as the 4th action</h3><p>Use when the objective is higher spend amounts or higher repeat frequency.</p></article>
+      </div>
+
+      <div class="pathway-table-grid">
+        <article class="panel">
+          <h3>Best Paths By Transaction Volume</h3>
+          <div class="table-wrap compact-table" style="margin-top:12px;">
+            <table>
+              <thead><tr><th>Depth</th><th>Strongest path</th><th>Members</th><th>Transactions</th><th>Avg txn/member</th></tr></thead>
+              <tbody>
+                <tr><td class="numeric">1</td><td class="path">Kmart</td><td class="numeric">437,385</td><td class="numeric">11,885,876</td><td class="numeric">27.2</td></tr>
+                <tr><td class="numeric">2</td><td class="path">Kmart &gt; Target</td><td class="numeric">134,162</td><td class="numeric">5,355,959</td><td class="numeric">39.9</td></tr>
+                <tr><td class="numeric">3</td><td class="path">Kmart &gt; Target &gt; Bunnings</td><td class="numeric">47,393</td><td class="numeric">2,459,299</td><td class="numeric">51.9</td></tr>
+                <tr><td class="numeric">4</td><td class="path">Kmart &gt; Target &gt; Bunnings &gt; Officeworks</td><td class="numeric">26,480</td><td class="numeric">1,568,064</td><td class="numeric">59.2</td></tr>
+                <tr><td class="numeric">5</td><td class="path">Kmart &gt; Target &gt; Bunnings &gt; Officeworks &gt; Priceline</td><td class="numeric">7,961</td><td class="numeric">574,626</td><td class="numeric">72.2</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+        <article class="panel">
+          <h3>Best Paths By Transaction Frequency</h3>
+          <div class="table-wrap compact-table" style="margin-top:12px;">
+            <table>
+              <thead><tr><th>Depth</th><th>Strongest path</th><th>Members</th><th>Transactions</th><th>Avg txn/member</th></tr></thead>
+              <tbody>
+                <tr><td class="numeric">1</td><td class="path">Priceline</td><td class="numeric">86,690</td><td class="numeric">2,678,661</td><td class="numeric">30.9</td></tr>
+                <tr><td class="numeric">2</td><td class="path">Kmart &gt; Priceline</td><td class="numeric">12,796</td><td class="numeric">574,142</td><td class="numeric">44.9</td></tr>
+                <tr><td class="numeric">3</td><td class="path">Kmart &gt; Target &gt; Priceline</td><td class="numeric">8,137</td><td class="numeric">438,038</td><td class="numeric">53.8</td></tr>
+                <tr><td class="numeric">4</td><td class="path">Kmart &gt; Target &gt; Bunnings &gt; Priceline</td><td class="numeric">5,274</td><td class="numeric">362,750</td><td class="numeric">68.8</td></tr>
+                <tr><td class="numeric">5</td><td class="path">Kmart &gt; Target &gt; Bunnings &gt; Priceline &gt; Officeworks</td><td class="numeric">3,152</td><td class="numeric">241,225</td><td class="numeric">76.5</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+        <article class="panel">
+          <h3>Best Paths By Total Spend</h3>
+          <div class="table-wrap compact-table" style="margin-top:12px;">
+            <table>
+              <thead><tr><th>Depth</th><th>Strongest path</th><th>Members</th><th>Total spend</th><th>Avg spend/member</th></tr></thead>
+              <tbody>
+                <tr><td class="numeric">1</td><td class="path">Kmart</td><td class="numeric">437,385</td><td class="numeric">$817.2M</td><td class="numeric">$1,868</td></tr>
+                <tr><td class="numeric">2</td><td class="path">Kmart &gt; Target</td><td class="numeric">134,162</td><td class="numeric">$367.8M</td><td class="numeric">$2,741</td></tr>
+                <tr><td class="numeric">3</td><td class="path">Kmart &gt; Target &gt; Bunnings</td><td class="numeric">47,393</td><td class="numeric">$172.3M</td><td class="numeric">$3,636</td></tr>
+                <tr><td class="numeric">4</td><td class="path">Kmart &gt; Target &gt; Bunnings &gt; Officeworks</td><td class="numeric">26,480</td><td class="numeric">$109.5M</td><td class="numeric">$4,134</td></tr>
+                <tr><td class="numeric">5</td><td class="path">Kmart &gt; Target &gt; Bunnings &gt; Officeworks &gt; Priceline</td><td class="numeric">7,961</td><td class="numeric">$37.4M</td><td class="numeric">$4,699</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <section aria-labelledby="purchase-title" style="margin-top:14px;">
+        <div class="section-head">
+          <div>
+            <h2 id="purchase-title">Purchase Path By Total Spend</h2>
+            <p>The PowerPoint includes this purchase-path spend table separately from linking events.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Path</th><th>Members</th><th>Total spend</th><th>Avg spend/member</th></tr></thead>
+            <tbody>
+              <tr><td class="path">Kmart &gt; Target &gt; Bunnings &gt; Officeworks</td><td class="numeric">14,028</td><td class="numeric">$73.9M</td><td class="numeric">$5,266</td></tr>
+              <tr><td class="path">Bunnings &gt; Officeworks</td><td class="numeric">27,896</td><td class="numeric">$72.8M</td><td class="numeric">$2,611</td></tr>
+              <tr><td class="path">Kmart &gt; Bunnings &gt; Officeworks</td><td class="numeric">21,844</td><td class="numeric">$67.0M</td><td class="numeric">$3,068</td></tr>
+              <tr><td class="path">Kmart &gt; Target &gt; Officeworks &gt; Bunnings</td><td class="numeric">10,249</td><td class="numeric">$58.5M</td><td class="numeric">$5,709</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <section id="source" aria-labelledby="source-title">
+      <div class="section-head">
+        <div>
+          <h2 id="source-title">Evidence And Caveats</h2>
+          <p>This version intentionally avoids all earlier local extract figures and only reproduces values present in the PowerPoint.</p>
+        </div>
+      </div>
+      <div class="source-grid">
+        <article class="source"><strong>Source deck</strong><p>Next Best Action.pptx, extracted 17 Jun 2026.</p></article>
+        <article class="source"><strong>Flybuys rule</strong><p>Flybuys linking dated from 2024-06-10.</p></article>
+        <article class="source"><strong>App and push rule</strong><p>App install and push opt-in dated from 2025-04-18.</p></article>
+        <article class="source"><strong>Known gap</strong><p>The full six-division spend path is listed as Kmart &gt; Target &gt; Bunnings &gt; ? &gt; ? in the deck, so the dashboard does not infer those missing steps.</p></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">PowerPoint-only dashboard for OnePass next best action planning. File: onepass_nba_dashboard.html.</footer>
+</body>
+</html>
